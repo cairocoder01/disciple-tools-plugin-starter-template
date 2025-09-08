@@ -166,10 +166,32 @@ class Disciple_Tools_Plugin_Starter_Template {
         }
 
         /**
+         * Enqueue Vue.js admin script for DT Admin integration
+         */
+        add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_dt_admin_scripts' ] );
+
+        /**
          * @todo Decide if you want to create default workflows
          * To remove: delete the line below and remove the folder named /workflows
          */
         require_once( 'workflows/workflows.php' );
+    }
+
+    /**
+     * Enqueue Vue.js admin script for DT Admin integration
+     */
+    public function enqueue_dt_admin_scripts() {
+        // Only enqueue on dt-admin pages
+        $url_path = dt_get_url_path();
+        if ( strpos( $url_path, 'dt-admin' ) === 0 ) {
+            wp_enqueue_script(
+                'dt-plugin-starter-template-admin-vue',
+                plugin_dir_url( __FILE__ ) . 'admin.vue.js',
+                array( 'dt-admin-vue-app' ), // Depend on the main DT Admin Vue app
+                filemtime( plugin_dir_path( __FILE__ ) . 'admin.vue.js' ),
+                true
+            );
+        }
     }
 
     /**
