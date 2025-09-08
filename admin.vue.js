@@ -70,6 +70,64 @@ const PluginStarterTemplateAdmin = {
   }
 };
 
+// Define a dashboard tile component for the admin dashboard slot
+const PluginStarterTemplateDashboardTile = {
+  template: `
+    <div class="plugin-starter-template-tile">
+      <div class="tile-header">
+        <h3>Plugin Starter Template</h3>
+        <span class="tile-status" :class="{ 'active': pluginActive }">{{ pluginActive ? 'Active' : 'Inactive' }}</span>
+      </div>
+      <div class="tile-content">
+        <p>Quick overview of the Plugin Starter Template status and key metrics.</p>
+        <div class="tile-stats">
+          <div class="stat">
+            <span class="stat-label">Version:</span>
+            <span class="stat-value">{{ pluginVersion }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Status:</span>
+            <span class="stat-value">{{ pluginStatus }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="tile-actions">
+        <button @click="openPluginAdmin" class="tile-btn">Configure Plugin</button>
+        <button @click="refreshStats" class="tile-btn secondary">Refresh</button>
+      </div>
+    </div>
+  `,
+  inject: ['router'],
+  data() {
+    return {
+      pluginActive: true,
+      pluginVersion: '1.0.0',
+      pluginStatus: 'Running'
+    }
+  },
+  mounted() {
+    console.log('Plugin Starter Template dashboard tile mounted');
+  },
+  methods: {
+    openPluginAdmin() {
+      // Navigate to the plugin's admin page using injected router
+      if (this.router) {
+        this.router.push('/dt-admin/extensions/plugin-starter-template');
+      } else {
+        console.error('Router not available for navigation');
+      }
+    },
+    refreshStats() {
+      // Refresh plugin statistics
+      console.log('Refreshing plugin stats...');
+      this.pluginStatus = 'Updated';
+      setTimeout(() => {
+        this.pluginStatus = 'Running';
+      }, 2000);
+    }
+  }
+};
+
 // Wait for DOM to be ready, then register the plugin
 document.addEventListener('DOMContentLoaded', function() {
   // Add some basic styles for the plugin admin interface
@@ -133,6 +191,109 @@ document.addEventListener('DOMContentLoaded', function() {
         border: 1px solid #c3e6cb;
         color: #155724;
       }
+
+      /* Dashboard Tile Styles */
+      .plugin-starter-template-tile {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #ffffff;
+      }
+
+      .plugin-starter-template-tile .tile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .plugin-starter-template-tile .tile-header h3 {
+        margin: 0;
+        font-size: 1.1em;
+        color: #495057;
+      }
+
+      .plugin-starter-template-tile .tile-status {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 500;
+        background: #6c757d;
+        color: white;
+      }
+
+      .plugin-starter-template-tile .tile-status.active {
+        background: #28a745;
+      }
+
+      .plugin-starter-template-tile .tile-content {
+        padding: 20px;
+      }
+
+      .plugin-starter-template-tile .tile-content p {
+        margin: 0 0 15px 0;
+        color: #6c757d;
+      }
+
+      .plugin-starter-template-tile .tile-stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+      }
+
+      .plugin-starter-template-tile .stat {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .plugin-starter-template-tile .stat-label {
+        font-size: 0.85em;
+        color: #6c757d;
+        margin-bottom: 2px;
+      }
+
+      .plugin-starter-template-tile .stat-value {
+        font-weight: 600;
+        color: #495057;
+      }
+
+      .plugin-starter-template-tile .tile-actions {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 10px;
+      }
+
+      .plugin-starter-template-tile .tile-btn {
+        padding: 8px 16px;
+        border: 1px solid #0073aa;
+        border-radius: 4px;
+        background: #0073aa;
+        color: white;
+        cursor: pointer;
+        font-size: 0.9em;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+
+      .plugin-starter-template-tile .tile-btn:hover {
+        background: #005177;
+        border-color: #005177;
+      }
+
+      .plugin-starter-template-tile .tile-btn.secondary {
+        background: transparent;
+        color: #0073aa;
+      }
+
+      .plugin-starter-template-tile .tile-btn.secondary:hover {
+        background: #0073aa;
+        color: white;
+      }
     </style>
   `;
 
@@ -142,17 +303,39 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Register the plugin with DT Admin
-  if (window.dtApp && typeof window.dtApp.registerPlugin === 'function') {
-    const registered = window.dtApp.registerPlugin({
-      name: 'Plugin Starter Template',
-      path: 'plugin-starter-template',
-      component: PluginStarterTemplateAdmin
-    });
+  function registerWithDTAdmin() {
+    if (window.dtApp && typeof window.dtApp.registerPlugin === 'function') {
+      const pluginRegistered = window.dtApp.registerPlugin({
+        name: 'Plugin Starter Template',
+        path: 'plugin-starter-template',
+        component: PluginStarterTemplateAdmin
+      });
 
-    if (registered) {
-      console.log('Plugin Starter Template successfully registered with DT Admin');
+      if (pluginRegistered) {
+        console.log('Plugin Starter Template successfully registered with DT Admin');
+      } else {
+        console.error('Failed to register Plugin Starter Template with DT Admin');
+      }
+    }
+
+    // Register the dashboard tile component
+    if (window.dtApp && typeof window.dtApp.registerSlot === 'function') {
+      const tileRegistered = window.dtApp.registerSlot({
+        name: 'admin-dashboard',
+        component: PluginStarterTemplateDashboardTile,
+        id: 'plugin-starter-template-dashboard-tile'
+      });
+
+      if (tileRegistered) {
+        console.log('Plugin Starter Template dashboard tile successfully registered');
+      } else {
+        console.error('Failed to register Plugin Starter Template dashboard tile');
+      }
     } else {
-      console.error('Failed to register Plugin Starter Template with DT Admin');
+      console.warn('DT Admin registerSlot method not available, retrying in 500ms...');
+      setTimeout(registerWithDTAdmin, 500);
     }
   }
+
+  registerWithDTAdmin();
 });
